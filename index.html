@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shader Patch Tool</title>
+    <title>Shader Patch Tool - Newb Legacy Support</title>
     <style>
         * {
             margin: 0;
@@ -54,12 +54,244 @@
             letter-spacing: 0.5px;
             margin-bottom: 16px;
         }
+        .upload-area {
+            border: 2px dashed #2a2d3a;
+            border-radius: 12px;
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #4f46e5;
+            background: #1e1b4b20;
+        }
+        .upload-area input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .upload-text {
+            font-size: 14px;
+            color: #aaa;
+        }
+        .upload-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        .file-selected {
+            background: #1e1b4b;
+            border: 2px solid #4f46e5;
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .file-icon {
+            font-size: 24px;
+        }
+        .file-info {
+            flex: 1;
+        }
+        .file-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .file-size {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+        .btn-remove {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+        }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: #fff;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .status {
+            display: none;
+            background: #1a1d27;
+            border: 1px solid #2a2d3a;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .status.show {
+            display: block;
+        }
+        .status-spinner {
+            font-size: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .status-text {
+            font-size: 14px;
+            color: #aaa;
+        }
+        .status-progress {
+            background: #2a2d3a;
+            border-radius: 4px;
+            height: 4px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+        .status-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .result {
+            display: none;
+            background: #0d1f12;
+            border: 1px solid #1a3a22;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .result.show {
+            display: block;
+        }
+        .result-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        .result-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #4ade80;
+            margin-bottom: 4px;
+        }
+        .result-sub {
+            font-size: 13px;
+            color: #6b9970;
+            margin-bottom: 16px;
+        }
+        .btn-download {
+            background: #15803d;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-download:hover {
+            background: #16a34a;
+        }
+        .error {
+            display: none;
+            background: #2d1515;
+            border: 1px solid #7f1d1d;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #fca5a5;
+        }
+        .error.show {
+            display: block;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .option-btn {
+            background: #12151f;
+            border: 2px solid #2a2d3a;
+            border-radius: 10px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        .option-btn:hover {
+            border-color: #4f46e5;
+        }
+        .option-btn.active {
+            border-color: #4f46e5;
+            background: #1e1b4b20;
+        }
+        .option-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .option-desc {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+        .info-box {
+            background: #1a1d27;
+            border-left: 3px solid #f59e0b;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #fbbf24;
+            line-height: 1.6;
+        }
+        .info-box strong {
+            color: #fff;
+        }
         .shader-info {
             background: #0d1f12;
             border: 1px solid #1a3a22;
             border-radius: 10px;
             padding: 14px;
-            margin-bottom: 16px;
+            margin-top: 12px;
         }
         .shader-name {
             font-weight: 700;
@@ -68,6 +300,424 @@
             margin-bottom: 4px;
         }
         .shader-detail {
+            font-size: 12px;
+            color: #6b9970;
+            line-height: 1.6;
+        }
+        .file-tag {
+            background: #1a3a22;
+            color: #6ee789;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-family: monospace;
+            display: inline-block;
+            margin: 2px;
+        }
+        .shader-files {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        .success-box {
+            background: #0d1f12;
+            border: 1px solid #1a3a22;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 10px;
+            color: #4ade80;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">⚡</div>
+            <h1>Shader Patch Tool</h1>
+            <div class="subtitle">Support: 13.mcpack · Newb Legacy · Shader apapun!</div>
+        </div>
+
+        <div class="info-box">
+            ⚠️ <strong>PENTING UNTUK NEWB LEGACY:</strong><br>
+            • Upload file <strong>Newb Legacy.mcpack</strong> sebagai shader<br>
+            • Pilih mode <strong>FULL SHADER</strong><br>
+            • Hasilnya akan tetap mempertahankan semua efek Newb Legacy
+        </div>
+
+        <!-- SHADER UPLOAD -->
+        <div class="card">
+            <div class="card-title">🎨 1. Upload Shader Pack</div>
+            <div id="shader-upload-container">
+                <div class="upload-area" id="shader-dropzone">
+                    <input type="file" id="shader-file-input" accept=".mcpack,.zip" onchange="handleShaderFile(this.files[0])">
+                    <div class="upload-icon">🎨</div>
+                    <div class="upload-text">Upload shader (13.mcpack / Newb Legacy / dll)</div>
+                    <div class="upload-hint">Nama file BEBAS, yang penting isinya shader</div>
+                </div>
+            </div>
+            <div id="shader-file-preview" style="display:none">
+                <div class="file-selected">
+                    <div class="file-icon">🎨</div>
+                    <div class="file-info">
+                        <div class="file-name" id="shader-name-display"></div>
+                        <div class="file-size" id="shader-size-display"></div>
+                    </div>
+                    <button class="btn-remove" onclick="removeShaderFile()">✕</button>
+                </div>
+            </div>
+            <div id="shader-info-display" style="display:none" class="shader-info">
+                <div class="shader-name" id="shader-detected-name"></div>
+                <div class="shader-detail" id="shader-detected-detail"></div>
+                <div class="shader-files" id="shader-file-list"></div>
+            </div>
+        </div>
+
+        <!-- OPTIONS -->
+        <div class="card">
+            <div class="card-title">⚙️ 2. Mode Injeksi</div>
+            <div class="options-grid">
+                <div class="option-btn active" id="opt-full" onclick="selectMode('full')">
+                    <div class="option-label">🔥 Full Shader</div>
+                    <div class="option-desc">Semua file (REKOMENDASI untuk Newb Legacy)</div>
+                </div>
+                <div class="option-btn" id="opt-renderer" onclick="selectMode('renderer')">
+                    <div class="option-label">⚡ Renderer Only</div>
+                    <div class="option-desc">Hanya folder renderer/materials</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TARGET UPLOAD -->
+        <div class="card">
+            <div class="card-title">📂 3. Upload Target Resource Pack</div>
+            <div id="upload-container">
+                <div class="upload-area" id="dropzone">
+                    <input type="file" id="file-input" accept=".mcpack,.zip" onchange="handleFile(this.files[0])">
+                    <div class="upload-icon">📦</div>
+                    <div class="upload-text">Upload resource pack yang mau dipatch</div>
+                    <div class="upload-hint">.mcpack atau .zip</div>
+                </div>
+            </div>
+            <div id="file-preview" style="display:none">
+                <div class="file-selected">
+                    <div class="file-icon">📦</div>
+                    <div class="file-info">
+                        <div class="file-name" id="file-name-display"></div>
+                        <div class="file-size" id="file-size-display"></div>
+                    </div>
+                    <button class="btn-remove" onclick="removeFile()">✕</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="error" id="error-box"></div>
+        <div class="status" id="status-box">
+            <div class="status-spinner">⚙️</div>
+            <div class="status-text" id="status-text">Memproses...</div>
+            <div class="status-progress">
+                <div class="status-progress-bar" id="progress-bar" style="width:0%"></div>
+            </div>
+        </div>
+        <div class="result" id="result-box">
+            <div class="result-icon">✅</div>
+            <div class="result-title">Shader Berhasil Diinjeksi!</div>
+            <div class="result-sub" id="result-sub">Pack siap digunakan di Minecraft Bedrock</div>
+            <button class="btn-download" onclick="downloadResult()">⬇️ Download Hasil</button>
+        </div>
+        <button class="btn btn-primary" id="patch-btn" onclick="startPatch()" disabled>⚡ Patch Shader Sekarang</button>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        let targetFile = null;
+        let shaderFile = null;
+        let shaderZip = null;
+        let resultBlob = null;
+        let patchMode = 'full';
+
+        function selectMode(mode) {
+            patchMode = mode;
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('opt-' + mode).classList.add('active');
+        }
+
+        function handleFile(file) {
+            if (!file) return;
+            targetFile = file;
+            document.getElementById('file-name-display').textContent = file.name;
+            document.getElementById('file-size-display').textContent = formatSize(file.size);
+            document.getElementById('upload-container').style.display = 'none';
+            document.getElementById('file-preview').style.display = 'block';
+            updatePatchButton();
+            hideError();
+            hideResult();
+        }
+
+        function removeFile() {
+            targetFile = null;
+            document.getElementById('upload-container').style.display = 'block';
+            document.getElementById('file-preview').style.display = 'none';
+            document.getElementById('file-input').value = '';
+            updatePatchButton();
+            hideResult();
+        }
+
+        async function handleShaderFile(file) {
+            if (!file) return;
+            try {
+                const bytes = await file.arrayBuffer();
+                shaderZip = await JSZip.loadAsync(bytes);
+                shaderFile = file;
+
+                document.getElementById('shader-name-display').textContent = file.name;
+                document.getElementById('shader-size-display').textContent = formatSize(file.size) + ' ✓';
+                document.getElementById('shader-upload-container').style.display = 'none';
+                document.getElementById('shader-file-preview').style.display = 'block';
+
+                // Deteksi struktur shader
+                const files = Object.keys(shaderZip.files).filter(f => !shaderZip.files[f].dir);
+                
+                // Cari semua file shader
+                const shaderFiles = files.filter(f => 
+                    f.includes('renderer/materials') || 
+                    f.includes('.material.bin') ||
+                    f.includes('materials/') ||
+                    f.includes('shaders/') ||
+                    f.includes('glsl/') ||
+                    f.includes('renderer/')
+                );
+
+                // Deteksi jenis shader
+                let shaderType = 'Shader Standar';
+                if (file.name.toLowerCase().includes('newb')) {
+                    shaderType = '🆕 Newb Legacy';
+                } else if (file.name.includes('13.')) {
+                    shaderType = '🔢 13.mcpack';
+                } else if (shaderFiles.length > 20) {
+                    shaderType = '🎨 Shader Lengkap';
+                }
+
+                const infoDisplay = document.getElementById('shader-info-display');
+                infoDisplay.style.display = 'block';
+                document.getElementById('shader-detected-name').textContent = `${shaderType} - ${file.name}`;
+                document.getElementById('shader-detected-detail').textContent = 
+                    `Ditemukan ${shaderFiles.length} file shader · Total ${files.length} file`;
+
+                const fileList = document.getElementById('shader-file-list');
+                fileList.innerHTML = '';
+                const displayFiles = shaderFiles.slice(0, 12);
+                displayFiles.forEach(f => {
+                    const tag = document.createElement('span');
+                    tag.className = 'file-tag';
+                    tag.textContent = f.split('/').pop() || f;
+                    fileList.appendChild(tag);
+                });
+                if (shaderFiles.length > 12) {
+                    const tag = document.createElement('span');
+                    tag.className = 'file-tag';
+                    tag.textContent = `+ ${shaderFiles.length - 12} lainnya`;
+                    fileList.appendChild(tag);
+                }
+
+                updatePatchButton();
+                hideError();
+
+            } catch (e) {
+                showError('Gagal membaca shader pack: ' + e.message);
+            }
+        }
+
+        function removeShaderFile() {
+            shaderFile = null;
+            shaderZip = null;
+            document.getElementById('shader-upload-container').style.display = 'block';
+            document.getElementById('shader-file-preview').style.display = 'none';
+            document.getElementById('shader-file-input').value = '';
+            document.getElementById('shader-info-display').style.display = 'none';
+            updatePatchButton();
+        }
+
+        function updatePatchButton() {
+            const btn = document.getElementById('patch-btn');
+            btn.disabled = !(targetFile && shaderZip);
+        }
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error-box');
+            el.textContent = '❌ ' + msg;
+            el.classList.add('show');
+        }
+
+        function hideError() {
+            document.getElementById('error-box').classList.remove('show');
+        }
+
+        function hideResult() {
+            document.getElementById('result-box').classList.remove('show');
+        }
+
+        function setProgress(pct, text) {
+            document.getElementById('progress-bar').style.width = pct + '%';
+            document.getElementById('status-text').textContent = text;
+        }
+
+        async function startPatch() {
+            if (!targetFile || !shaderZip) {
+                showError('Upload shader pack dan target resource pack dulu!');
+                return;
+            }
+
+            hideError();
+            hideResult();
+            document.getElementById('status-box').classList.add('show');
+            document.getElementById('patch-btn').disabled = true;
+
+            try {
+                setProgress(5, 'Membaca file target...');
+                const targetBytes = await targetFile.arrayBuffer();
+                const targetZip = await JSZip.loadAsync(targetBytes);
+
+                setProgress(25, 'Membaca shader pack...');
+                setProgress(45, 'Menginjeksi shader (NEWB LEGACY MODE)...');
+                
+                // Inject semua file dari shader ke target
+                await injectShader(targetZip, shaderZip);
+
+                setProgress(75, 'Mengemas file...');
+                const resultBytes = await targetZip.generateAsync({
+                    type: 'blob',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 9 }
+                });
+
+                resultBlob = resultBytes;
+                setProgress(100, 'Selesai!');
+
+                setTimeout(() => {
+                    document.getElementById('status-box').classList.remove('show');
+                    const outName = targetFile.name.replace(/\.(mcpack|zip)$/i, '_shader.mcpack');
+                    document.getElementById('result-sub').textContent = 
+                        'File: ' + outName + ' · ' + formatSize(resultBytes.size) +
+                        '\n✅ Shader Newb Legacy berhasil di-inject!';
+                    document.getElementById('result-box').classList.add('show');
+                    document.getElementById('patch-btn').disabled = false;
+                }, 500);
+
+            } catch (e) {
+                document.getElementById('status-box').classList.remove('show');
+                document.getElementById('patch-btn').disabled = false;
+                showError('Gagal: ' + e.message);
+                console.error(e);
+            }
+        }
+
+        async function injectShader(targetZip, srcZip) {
+            let injected = 0;
+            const files = Object.keys(srcZip.files);
+
+            for (const path of files) {
+                const file = srcZip.files[path];
+                if (file.dir) continue;
+
+                let shouldInject = false;
+
+                if (patchMode === 'full') {
+                    // FULL MODE: inject SEMUA file kecuali yang benar-benar tidak perlu
+                    if (!path.includes('manifest.json') &&
+                        !path.includes('pack_icon.png') &&
+                        !path.includes('copyright.txt') &&
+                        !path.includes('.DS_Store') &&
+                        !path.includes('thumbs.db')) {
+                        shouldInject = true;
+                    }
+                } else {
+                    // RENDERER ONLY
+                    if (path.startsWith('renderer/')) {
+                        shouldInject = true;
+                    }
+                }
+
+                if (shouldInject) {
+                    try {
+                        const content = await file.async('arraybuffer');
+                        targetZip.file(path, content);
+                        injected++;
+                    } catch (e) {
+                        console.warn('Gagal inject:', path);
+                    }
+                }
+            }
+
+            // Pastikan folder penting ada (untuk Newb Legacy)
+            const folders = ['renderer/', 'renderer/materials/', 'textures/', 'subpacks/', 'biomes/'];
+            for (const folder of folders) {
+                if (!targetZip.files[folder]) {
+                    targetZip.folder(folder);
+                }
+            }
+
+            console.log(`✅ Berhasil inject ${injected} file shader`);
+        }
+
+        function downloadResult() {
+            if (!resultBlob) return;
+            const name = targetFile.name.replace(/\.(mcpack|zip)$/i, '_shader.mcpack');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(resultBlob);
+            a.download = name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+        }
+
+        // Drag and drop untuk target
+        const dropzone = document.getElementById('dropzone');
+        ['dragenter', 'dragover'].forEach(e => {
+            dropzone.addEventListener(e, ev => {
+                ev.preventDefault();
+                dropzone.classList.add('dragover');
+            });
+        });
+        ['dragleave', 'drop'].forEach(e => {
+            dropzone.addEventListener(e, ev => {
+                ev.preventDefault();
+                dropzone.classList.remove('dragover');
+            });
+        });
+        dropzone.addEventListener('drop', ev => {
+            const f = ev.dataTransfer.files[0];
+            if (f) handleFile(f);
+        });
+
+        // Drag and drop untuk shader
+        const shaderDropzone = document.getElementById('shader-dropzone');
+        ['dragenter', 'dragover'].forEach(e => {
+            shaderDropzone.addEventListener(e, ev => {
+                ev.preventDefault();
+                shaderDropzone.classList.add('dragover');
+            });
+        });
+        ['dragleave', 'drop'].forEach(e => {
+            shaderDropzone.addEventListener(e, ev => {
+                ev.preventDefault();
+                shaderDropzone.classList.remove('dragover');
+            });
+        });
+        shaderDropzone.addEventListener('drop', ev => {
+            const f = ev.dataTransfer.files[0];
+            if (f) handleShaderFile(f);
+        });
+    </script>
+</body>
+</html>        .shader-detail {
             font-size: 12px;
             color: #6b9970;
             line-height: 1.6;
